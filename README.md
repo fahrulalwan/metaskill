@@ -6,7 +6,7 @@ Teach your AI agent how to actually learn — not just log.
 
 Most agents log mistakes. They don't learn from them.
 
-After auditing NAVIA's learning system:
+After auditing my OpenClaw agent's learning system:
 - 37 corrections logged. All surface-level. "Don't use tool X." Nothing deeper.
 - Same mistake logged 3 times. Still happened a fourth.
 - Win:error ratio — 0:24. Only learned from failure, never success.
