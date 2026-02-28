@@ -38,13 +38,14 @@ SCRIPT_DIR=$(dirname "$0")
 echo "Searching for analogous principles..."
 
 # Try LLM extraction (v1.1)
+echo "[LLM mode] Searching for analogies..."
 LLM_RESULT=$(python3 "$SCRIPT_DIR/llm_transfer.py" "$TASK" "$LEARNINGS_FILE" 2>/dev/null)
 
 if [ "$LLM_RESULT" = "FALLBACK" ] || [ -z "$LLM_RESULT" ]; then
-  echo "LLM search unavailable or failed. Falling back to naive keyword search."
+  echo "[offline mode] LLM search unavailable or failed. Falling back to naive keyword search."
   
   # Extract naive keywords (simple lowercase, remove common words)
-  KEYWORDS=$(echo "$TASK" | tr '[:upper:]' '[:lower:]' | sed -E 's/( a | the | to | and | for | in | of | on | with )/ /g' | tr -s ' ')
+  KEYWORDS=$(echo "$TASK" | tr "[:upper:]" "[:lower:]" | sed -E "s/( a | the | to | and | for | in | of | on | with )/ /g" | tr -s " ")
 
   MATCHES=""
   for word in $KEYWORDS; do
@@ -65,18 +66,18 @@ if [ "$LLM_RESULT" = "FALLBACK" ] || [ -z "$LLM_RESULT" ]; then
 else
   # Parse JSON
   # Check if "principles" key exists
-  HAS_PRINCIPLES=$(echo "$LLM_RESULT" | python3 -c 'import sys, json; print("1" if json.load(sys.stdin).get("principles", []) else "0")' 2>/dev/null)
+  HAS_PRINCIPLES=$(echo "$LLM_RESULT" | python3 -c "import sys, json; print('1' if json.load(sys.stdin).get('principles', []) else '0')")
   
   if [ "$HAS_PRINCIPLES" = "1" ]; then
     echo "Relevant principles found (LLM Analogy):"
-    echo "$LLM_RESULT" | python3 -c '
+    echo "$LLM_RESULT" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
-for p in data.get("principles", []):
-    print(f"- Principle: {p.get(\"principle\", \"\")}")
-    print(f"  Reasoning: {p.get(\"reasoning\", \"\")}")
+for p in data.get('principles', []):
+    print(f'- Principle: {p.get(\"principle\", \"\")}')
+    print(f'  Reasoning: {p.get(\"reasoning\", \"\")}')
     print()
-'
+"
   else
     echo "No analogous patterns found by LLM — proceed, but log what works"
   fi

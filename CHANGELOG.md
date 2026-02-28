@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.0 (2026-02-28)
+
+### Added
+- LLM-powered extraction for deeper error analysis with graceful offline fallback.
+- Semantic transfer check using LLM to find analogous principles beyond simple keyword matching.
+- Explicit UI modes: "[LLM mode]" and "[offline mode]" indicators.
+
 ## v1.0.0 (2026-02-28)
 
 ### Added
@@ -7,10 +14,4 @@
 - `transfer-check.sh` — pre-task pattern check from past learnings
 - `success-capture.sh` — log what worked, not just what broke
 - `eval.sh` — monthly learning score with trend tracking
-- `llm_extract.py` / `llm_transfer.py` — LLM stubs for v1.1 (disabled by default)
-
-## v1.1.0 (planned)
-
-- LLM-powered extraction for deeper error analysis
-- Semantic transfer check (beyond keyword grep)
-- Auto-categorization of learning patterns
+- `llm_extract.py` / `llm_transfer.py` — base scripts for LLM integration.

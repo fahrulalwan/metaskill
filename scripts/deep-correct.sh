@@ -36,20 +36,20 @@ if [ -n "$2" ] && [ -n "$3" ]; then
   HABIT="$3"
 else
   # Try LLM extraction (v1.1)
-  echo "Attempting LLM extraction..."
+  echo "[LLM mode] Attempting extraction..."
   LLM_RESULT=$(python3 "$SCRIPT_DIR/llm_extract.py" "$ERROR_DESC" 2>/dev/null)
   
   if [ "$LLM_RESULT" = "FALLBACK" ] || [ -z "$LLM_RESULT" ]; then
-    echo "LLM extraction unavailable or failed. Falling back to manual input."
+    echo "[offline mode] LLM extraction unavailable or failed. Falling back to manual input."
     echo "Enter Principle (what underlying rule was violated): "
     read -r PRINCIPLE
     echo "Enter Habit (what behavioral change prevents recurrence): "
     read -r HABIT
   else
     # Parse JSON
-    ERROR_DESC=$(echo "$LLM_RESULT" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("surface", ""))')
-    PRINCIPLE=$(echo "$LLM_RESULT" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("principle", ""))')
-    HABIT=$(echo "$LLM_RESULT" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("habit", ""))')
+    ERROR_DESC=$(echo "$LLM_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin).get(\"surface\", \"\"))")
+    PRINCIPLE=$(echo "$LLM_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin).get(\"principle\", \"\"))")
+    HABIT=$(echo "$LLM_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin).get(\"habit\", \"\"))")
     
     echo ""
     echo "LLM Extracted Levels:"
