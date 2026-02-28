@@ -1,5 +1,7 @@
 # scripts/llm_transfer.py
 import sys, json, os
+sys.path.insert(0, os.path.dirname(__file__))
+from llm_provider import call_llm
 
 def get_analogous_principles(task_desc, learnings_content):
     prompt = f"""Given this task:
@@ -11,45 +13,26 @@ Which of these past learnings are analogically relevant? Explain the connection.
 Past learnings:
 {learnings_content}"""
 
-    # Try Anthropic first
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-        msg = client.messages.create(
-            model="claude-3-haiku-20240307",
-            max_tokens=500,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return json.loads(msg.content[0].text)
-    except Exception as e:
-        pass
-    
-    # Try OpenAI
-    try:
-        from openai import OpenAI
-        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        resp = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return json.loads(resp.choices[0].message.content)
-    except Exception as e:
-        pass
-    
+    result = call_llm(prompt, provider_type="deep", max_tokens=500)
+    if result:
+        try:
+            return json.loads(result)
+        except json.JSONDecodeError:
+            pass
     return None
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("FALLBACK")
         sys.exit(0)
-    
+
     task_desc = sys.argv[1]
     learnings_file = sys.argv[2]
-    
+
     try:
         with open(learnings_file, "r") as f:
             content = f.read()
-            
+
         # Extract just the headers + first 2 lines of each entry
         lines = content.split('\n')
         extracted_lines = []
@@ -60,9 +43,9 @@ if __name__ == "__main__":
             if capture > 0:
                 extracted_lines.append(line)
                 capture -= 1
-        
+
         extracted_content = '\n'.join(extracted_lines)
-    except Exception as e:
+    except Exception:
         print("FALLBACK")
         sys.exit(0)
 

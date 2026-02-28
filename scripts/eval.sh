@@ -42,16 +42,32 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 echo ""
 echo "⚙️  SYSTEM STATUS"
-if [ -n "$ANTHROPIC_API_KEY" ] || [ -n "$OPENAI_API_KEY" ]; then
-  echo "   Version: v1.1 (LLM-powered extraction active)"
-  if [ -n "$ANTHROPIC_API_KEY" ]; then
-    echo "   API Key: Anthropic detected"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROVIDER_STATUS=$(python3 -c "
+import sys; sys.path.insert(0, '$SCRIPT_DIR')
+from llm_provider import get_status
+import json; print(json.dumps(get_status()))
+" 2>/dev/null)
+
+if [ -n "$PROVIDER_STATUS" ]; then
+  FAST_PROVIDER=$(echo "$PROVIDER_STATUS" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('fast',{}).get('provider','?'))")
+  FAST_MODEL=$(echo "$PROVIDER_STATUS" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('fast',{}).get('model','?'))")
+  FAST_READY=$(echo "$PROVIDER_STATUS" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('fast',{}).get('ready',False))")
+  DEEP_PROVIDER=$(echo "$PROVIDER_STATUS" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('deep',{}).get('provider','?'))")
+  DEEP_MODEL=$(echo "$PROVIDER_STATUS" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('deep',{}).get('model','?'))")
+  DEEP_READY=$(echo "$PROVIDER_STATUS" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('deep',{}).get('ready',False))")
+
+  if [ "$FAST_READY" = "True" ] || [ "$DEEP_READY" = "True" ]; then
+    echo "   Version: v1.2 (LLM-powered extraction active)"
+    echo "   Fast provider : $FAST_PROVIDER / $FAST_MODEL $([ "$FAST_READY" = "True" ] && echo "✅" || echo "❌ missing key")"
+    echo "   Deep provider : $DEEP_PROVIDER / $DEEP_MODEL $([ "$DEEP_READY" = "True" ] && echo "✅" || echo "❌ missing key")"
   else
-    echo "   API Key: OpenAI detected"
+    echo "   Version: v1.0 fallback (Manual extraction mode)"
+    echo "   No LLM provider ready. Edit skills/metaskill/config.yaml and set the required env var."
+    echo "   Fast: $FAST_PROVIDER → needs \$$(python3 -c "import sys; sys.path.insert(0,'$SCRIPT_DIR'); from llm_provider import _load_config; c=_load_config(); print(c['env_vars'].get(c['providers']['fast'],'?'))" 2>/dev/null)"
   fi
 else
-  echo "   Version: v1.0 fallback (Manual extraction mode)"
-  echo "   API Key: Not found (Set ANTHROPIC_API_KEY or OPENAI_API_KEY for v1.1)"
+  echo "   Version: v1.0 fallback (llm_provider.py unavailable)"
 fi
 
 # ── GAP 1: Self-correction depth ────────────────────────────────────────────

@@ -1,16 +1,27 @@
-# Changelog
+# Metaskill Changelog
 
-## v1.0.0 (2026-02-28)
+## v1.3.0 — 2026-03-01
 
-### Added
-- `deep-correct.sh` — 3-level error breakdown (surface → principle → habit)
-- `transfer-check.sh` — pre-task pattern check from past learnings
-- `success-capture.sh` — log what worked, not just what broke
-- `eval.sh` — monthly learning score with trend tracking
-- `llm_extract.py` / `llm_transfer.py` — LLM stubs for v1.1 (disabled by default)
+### feat: Abstract provider system
 
-## v1.1.0 (planned)
+- Added `config.yaml` — configure fast/deep provider tiers without touching code
+- Added `llm_provider.py` — unified wrapper supporting anthropic, openai, ollama, gemini
+- Refactored `llm_extract.py` + `llm_transfer.py` to use `llm_provider.call_llm()`
+- Updated `eval.sh` — reads provider config instead of hardcoded env var checks
+- Updated `SKILL.md` — added Configuration section with provider table + Ollama example
+- **Breaking:** No longer hardcodes `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` directly. Edit `config.yaml` to set your provider.
 
-- LLM-powered extraction for deeper error analysis
-- Semantic transfer check (beyond keyword grep)
-- Auto-categorization of learning patterns
+## v1.2.0 — prior
+
+- LLM-powered extraction with Anthropic/OpenAI fallback
+- eval.sh scoring system
+- transfer-check.sh for analogical learning
+
+## v1.1.0 — prior
+
+- deep-correct.sh 3-level breakdown
+- success-capture.sh pattern logging
+
+## v1.0.0 — initial
+
+- Core metaskill framework

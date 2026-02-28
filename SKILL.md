@@ -1,8 +1,8 @@
 ---
 name: metaskill
-description: Teaches AI agents how to learn better by enforcing deep correction, transfer learning, and proactive pattern recognition. Use when an error occurs and needs deep analysis (not surface patch), before starting a complex task to check past analogies, or after success to capture winning patterns. NOT for routine file reads or simple one-off commands.
+version: 1.3.0
+description: "Teaches AI agents how to learn better by enforcing deep correction, transfer learning, and proactive pattern recognition. Use when an error occurs and needs deep analysis (not surface patch), before starting a complex task to check past analogies, or after success to capture winning patterns. NOT for routine file reads or simple one-off commands."
 ---
-
 # Metaskill
 
 ## 3 Core Components
@@ -31,6 +31,37 @@ bash skills/metaskill/scripts/success-capture.sh "what worked" "why it worked"
 # Monthly health eval
 bash skills/metaskill/scripts/eval.sh --save
 ```
+
+## Configuration (LLM Provider)
+
+Metaskill uses two provider tiers — **fast** (extraction) and **deep** (transfer/eval). Edit `config.yaml` to match your setup:
+
+```yaml
+# config.yaml
+providers:
+  fast: anthropic   # change to: openai | ollama | gemini
+  deep: anthropic
+```
+
+| Provider | Env Var | Notes |
+|---|---|---|
+| `anthropic` | `ANTHROPIC_API_KEY` | Default |
+| `openai` | `OPENAI_API_KEY` | |
+| `ollama` | *(none needed)* | Local, free |
+| `gemini` | `GOOGLE_API_KEY` | |
+
+**Ollama example** (fully local, no API key):
+```yaml
+providers:
+  fast: ollama
+  deep: ollama
+models:
+  ollama:
+    fast: llama3.2
+    deep: llama3.1:70b
+```
+
+If no provider is available, metaskill falls back to manual/heuristic mode (still works, but less precise extraction).
 
 ## Integration with Self-Improving-Agent
 
